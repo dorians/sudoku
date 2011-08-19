@@ -90,5 +90,12 @@ class SudokuTest < Test::Unit::TestCase
       assert_equal(test_item['related'], result['related'])
     end
   end
+  
+  def test_set
+    assert @sudoku.set(2, 1, 4)
+    assert_nil @sudoku.set(2, 1, 6)
+    assert_nil @sudoku.set(0, 0, 6)
+    assert_nil @sudoku.set(0, 1, 6)
+  end
 	
 end

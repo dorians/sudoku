@@ -28,7 +28,7 @@ class Sudoku
   end
 
   def set x, y, value
-    at(x, y).set(value)
+    at(x, y).set(value) unless at(x, y).related.any? {|item| item.to_i == value }
   end
 
   def count_set
@@ -56,19 +56,11 @@ class Sudoku
   end
 
   def each
-    @data.each {|row| row.each {|item| yield item }}
+    each_with_position {|item, x, y| yield item}
   end
 
   def each_with_position
     @data.each_with_index {|row, y| row.each_with_index {|item, x| yield item, x, y}}
-  end
-
-  def correct?
-    groups.each do |group|
-      group = group.map {|item| item.to_i }
-      return false unless group.uniq == group
-    end
-    true
   end
 
   def to_s

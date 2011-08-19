@@ -49,12 +49,11 @@ class SudokuSolver
     @capabilities.each_with_index do |row, y|
       row.each_with_index do |element, x|
         if element.size == 1
-          set x, y, element.first
-          return true
+          return set x, y, element.first
         end
       end
     end
-    return false
+    false
   end
 
   def solve_method2
@@ -67,24 +66,28 @@ class SudokuSolver
           @capabilities[item.y][item.x].include? digit
         end
         if capabilities_items.size == 1
-          set capabilities_items.first.x, capabilities_items.first.y, digit 
-          return true
+          return set capabilities_items.first.x, capabilities_items.first.y, digit
         end
       end
     end
-    return false
+    false
   end
 
   def set x, y, value
-    @sudoku.set x, y, value
+    # delegate a task
+    if @sudoku.set x, y, value
+      # item was set, so clear capabilities
+      @capabilities[y][x].clear
 
-    @capabilities[y][x].clear
+      # remove set value from capabilities of related items
       @sudoku.at(x, y).related.each do |item|
         @capabilities[item.y][item.x] -= [value]
       end
+    end
   end
 
   def set_capabilities
+    # each item of sudoku can be any digit from 1 to 9 at the beginning
     @capabilities = Array.new(9) {Array.new(9) { (1..9).to_a }}
 
     @sudoku.each do |item|

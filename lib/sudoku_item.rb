@@ -14,13 +14,12 @@ class SudokuItem
   end
 
   def set value
-    @value = value.to_i.zero? && value.to_i.to_s.size == 1 ? nil : value.to_i
+    @value = value.to_i.zero? ? nil : value.to_i unless set?
   end
 
   def position
-    @position ||=
-      @sudoku.each_with_position do |element, x, y|
-        return (@position = x.to_i, y.to_i) if element == self
+    @position || @sudoku.each_with_position do |element, x, y|
+      return (@position = x.to_i, y.to_i) if element == self
     end
   end
 
