@@ -82,22 +82,22 @@ class SudokuSolver
       @sudoku.at(x, y).related.each do |item|
         @capabilities[item.y][item.x] -= [value]
       end
+  end
+
+  def set_capabilities
+    @capabilities = Array.new(9) {Array.new(9) { (1..9).to_a }}
+
+    @sudoku.each do |item|
+      # if item is set, then capabilities should be empty
+      @capabilities[item.y][item.x].clear if item.set?
+
+      # get related as array of integers
+      related = item.related.collect {|element| element.to_i}
+      related = (related.find_all {|element| not element.zero?}).uniq
+
+      # any digit from related shouldn't be one of capabilities
+      @capabilities[item.y][item.x] -= related
     end
+  end
 
-    def set_capabilities
-      @capabilities = Array.new(9) {Array.new(9) { (1..9).to_a }}
-
-      @sudoku.each do |item|
-        # if item is set, then capabilities should be empty
-        @capabilities[item.y][item.x].clear if item.set?
-
-        # get related as array of integers
-        related = item.related.collect {|element| element.to_i}
-        related = (related.find_all {|element| not element.zero?}).uniq
-
-        # any digit from related shouldn't be one of capabilities
-        @capabilities[item.y][item.x] -= related
-      end
-    end
- 
 end
