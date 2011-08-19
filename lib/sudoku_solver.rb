@@ -4,18 +4,18 @@ class SudokuSolver
 
   def initialize sudoku
     @sudoku = sudoku
-		set_capabilities
+    set_capabilities
   end
 
-	def solve
+  def solve
     while (solve_method1 || solve_method2) do
       raise "Sudoku can't be solved" unless correct?
     end
-    
+
     unless @sudoku.solved?
       item = @sudoku.find {|item| not item.set?}
       results = []
-      
+
       @capabilities[item.y][item.x].each do |capability|
         begin
           sudoku = @sudoku.clone
@@ -25,18 +25,18 @@ class SudokuSolver
         rescue
         end
       end
-      
+
       return results
     else
       return [@sudoku]
     end
-	end
-  
+  end
+
   def sudoku
     @sudoku
   end
 
-	private
+  private
 
   def correct?
     @sudoku.each do |item|
@@ -56,7 +56,7 @@ class SudokuSolver
     end
     return false
   end
-  
+
   def solve_method2
     @sudoku.groups.each do |group|
       set_digits = (group.find_all {|item| item.set?}).map {|item| item.to_i}
@@ -74,30 +74,30 @@ class SudokuSolver
     end
     return false
   end
-  
+
   def set x, y, value
-		@sudoku.set x, y, value
+    @sudoku.set x, y, value
 
     @capabilities[y][x].clear
-		@sudoku.at(x, y).related.each do |item|
-			@capabilities[item.y][item.x] -= [value]
-		end
-	end
+      @sudoku.at(x, y).related.each do |item|
+        @capabilities[item.y][item.x] -= [value]
+      end
+    end
 
-	def set_capabilities
-  	@capabilities = Array.new(9) {Array.new(9) { (1..9).to_a }}
+    def set_capabilities
+      @capabilities = Array.new(9) {Array.new(9) { (1..9).to_a }}
 
-		@sudoku.each do |item|
-			# if item is set, then capabilities should be empty
-			@capabilities[item.y][item.x].clear if item.set?
-			
-			# get related as array of integers
-			related = item.related.collect {|element| element.to_i}
-			related = (related.find_all {|element| not element.zero?}).uniq
-			
-			# any digit from related shouldn't be one of capabilities
-			@capabilities[item.y][item.x] -= related
-		end
-	end
+      @sudoku.each do |item|
+        # if item is set, then capabilities should be empty
+        @capabilities[item.y][item.x].clear if item.set?
 
+        # get related as array of integers
+        related = item.related.collect {|element| element.to_i}
+        related = (related.find_all {|element| not element.zero?}).uniq
+
+        # any digit from related shouldn't be one of capabilities
+        @capabilities[item.y][item.x] -= related
+      end
+    end
+ 
 end
