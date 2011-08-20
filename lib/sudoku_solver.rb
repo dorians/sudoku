@@ -1,35 +1,84 @@
 require 'sudoku'
+require 'sudoku_result'
 
 class SudokuSolver
 
   def initialize sudoku
-    @sudoku = sudoku
-    set_capabilities
+    @sudoku = sudoku.clone
+    initialize_capabilities
+  end
+
+  def clone
+    SudokuSolver.new @sudoku
   end
 
   def solve
-    while (solve_method1 || solve_method2) do
-      raise "Sudoku can't be solved" unless correct?
+    result = SudokuResult.new
+
+    begin
+      return (result << @sudoku) if try_solve_without_random
+    rescue
+      return result
     end
 
     unless @sudoku.solved?
-      item = @sudoku.find {|item| not item.set?}
-      results = []
+      sudoku_posabilities = [self]
 
-      @capabilities[item.y][item.x].each do |capability|
-        begin
-          sudoku = @sudoku.clone
-          sudoku.set item.x, item.y, capability
-          solver = SudokuSolver.new sudoku
-          results.concat solver.solve
-        rescue
-        end
+      until sudoku_posabilities.empty?
+        current_solver = sudoku_posabilities.pop
+
+        item = current_solver.sudoku.find {|i| not i.set? }
+
+        current_solver.capabilities[item.y][item.x].each do |capability|
+          solver = current_solver.clone
+          solver.sudoku.set item.x, item.y, capability
+
+          begin
+            if solver.try_solve_without_random
+              result << solver.sudoku
+            else
+              (sudoku_posabilities << solver) if solver.correct?
+            end
+          rescue
+          end
+        end        
       end
-
-      return results
-    else
-      return [@sudoku]
     end
+    
+    result
+  end
+
+  protected
+
+  def try_solve_without_random
+    while (solve_method1 || solve_method2) do
+      raise 'Sudoku can\'t be solved' unless correct?
+    end
+    @sudoku.solved?
+  end
+
+  def set x, y, value
+    # delegate a task
+    if @sudoku.set x, y, value
+      # item was set, so clear capabilities
+      @capabilities[y][x].clear
+
+      # remove set value from capabilities of related items
+      @sudoku.at(x, y).related.each do |item|
+        @capabilities[item.y][item.x] -= [value]
+      end
+    end
+  end
+
+  def correct?
+    @sudoku.each do |item|
+      return false if (not item.set?) && @capabilities[item.y][item.x].empty?
+    end
+    true
+  end
+
+  def capabilities
+    @capabilities
   end
 
   def sudoku
@@ -38,11 +87,19 @@ class SudokuSolver
 
   private
 
-  def correct?
-    @sudoku.each do |item|
-      return false if (not item.set?) && @capabilities[item.y][item.x].empty?
+  def _solve result, depth_level = 0
+    item = @sudoku.find {|item| not item.set?}
+    results = []
+
+    @capabilities[item.y][item.x].each do |capability|
+      begin
+        sudoku = @sudoku.clone
+        sudoku.set item.x, item.y, capability
+        solver = SudokuSolver.new sudoku
+        results.concat solver.solve depth_level.succ
+      rescue
+      end
     end
-    true
   end
 
   def solve_method1
@@ -73,20 +130,7 @@ class SudokuSolver
     false
   end
 
-  def set x, y, value
-    # delegate a task
-    if @sudoku.set x, y, value
-      # item was set, so clear capabilities
-      @capabilities[y][x].clear
-
-      # remove set value from capabilities of related items
-      @sudoku.at(x, y).related.each do |item|
-        @capabilities[item.y][item.x] -= [value]
-      end
-    end
-  end
-
-  def set_capabilities
+  def initialize_capabilities
     # each item of sudoku can be any digit from 1 to 9 at the beginning
     @capabilities = Array.new(9) {Array.new(9) { (1..9).to_a }}
 
