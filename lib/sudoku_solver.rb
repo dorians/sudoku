@@ -9,7 +9,12 @@ class SudokuSolver
   end
 
   def clone
-    SudokuSolver.new @sudoku
+    solver = super
+
+    solver.sudoku = @sudoku.clone
+    solver.capabilities = Marshal.load(Marshal.dump(@capabilities))
+
+    solver
   end
 
   def solve
@@ -31,7 +36,7 @@ class SudokuSolver
 
         current_solver.capabilities[item.y][item.x].each do |capability|
           solver = current_solver.clone
-          solver.sudoku.set item.x, item.y, capability
+          solver.set item.x, item.y, capability
 
           begin
             if solver.try_solve_without_random
@@ -41,7 +46,7 @@ class SudokuSolver
             end
           rescue
           end
-        end        
+        end
       end
     end
     
@@ -49,6 +54,8 @@ class SudokuSolver
   end
 
   protected
+  
+  attr_accessor :sudoku, :capabilities
 
   def try_solve_without_random
     while (solve_method1 || solve_method2) do
@@ -75,31 +82,6 @@ class SudokuSolver
       return false if (not item.set?) && @capabilities[item.y][item.x].empty?
     end
     true
-  end
-
-  def capabilities
-    @capabilities
-  end
-
-  def sudoku
-    @sudoku
-  end
-
-  private
-
-  def _solve result, depth_level = 0
-    item = @sudoku.find {|item| not item.set?}
-    results = []
-
-    @capabilities[item.y][item.x].each do |capability|
-      begin
-        sudoku = @sudoku.clone
-        sudoku.set item.x, item.y, capability
-        solver = SudokuSolver.new sudoku
-        results.concat solver.solve depth_level.succ
-      rescue
-      end
-    end
   end
 
   def solve_method1
@@ -140,7 +122,6 @@ class SudokuSolver
 
       # get related as array of integers
       related = item.related.collect {|element| element.to_i}
-      related = (related.find_all {|element| not element.zero?}).uniq
 
       # any digit from related shouldn't be one of capabilities
       @capabilities[item.y][item.x] -= related
