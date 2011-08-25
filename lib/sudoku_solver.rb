@@ -42,19 +42,19 @@ class SudokuSolver
             if solver.try_solve_without_random
               result << solver.sudoku
             else
-              (sudoku_posabilities << solver) if solver.correct?
+              sudoku_posabilities << solver if solver.correct?
             end
           rescue
           end
         end
       end
     end
-    
+
     result
   end
 
   protected
-  
+
   attr_accessor :sudoku, :capabilities
 
   def try_solve_without_random
