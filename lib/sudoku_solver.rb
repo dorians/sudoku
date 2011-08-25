@@ -84,6 +84,8 @@ class SudokuSolver
     true
   end
 
+  private
+
   def solve_method1
     @capabilities.each_with_index do |row, y|
       row.each_with_index do |element, x|
