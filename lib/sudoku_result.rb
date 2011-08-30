@@ -11,8 +11,8 @@ class SudokuResult
     @depth = depth
   end
 
-  def each
-    @results.each
+  def each &block
+    @results.each &block
   end
 
   def << sudoku
@@ -33,12 +33,10 @@ class SudokuResult
   end
 
   def merge other
-    @results += other.results
+    other.each do |sudoku|
+      self.<< sudoku
+    end
     @depth = [@depth, other.depth].max
   end
-
-  protected
-
-  attr_reader :results
 
 end
