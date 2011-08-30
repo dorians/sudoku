@@ -3,8 +3,10 @@ require 'sudoku'
 class SudokuResult
 
   include Enumerable
+  
+  attr_accessor :depth
 
-  def initialize
+  def initialize depth
     @results = []
   end
 
@@ -17,14 +19,6 @@ class SudokuResult
     self
   end
 
-  def set_as_unsolved
-    
-  end
-
-  def get
-    @results.first unless @results.empty?
-  end
-
   def correct?
     @results.count == 1
   end
@@ -34,7 +28,15 @@ class SudokuResult
   end
 
   def to_s
-    get.to_s
+    @results.empty? ? '' : @results.first.to_s
   end
+
+  def merge other
+    @results += other.results
+  end
+
+  protected
+
+  attr_reader :results
 
 end
