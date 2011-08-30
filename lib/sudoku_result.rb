@@ -3,11 +3,12 @@ require 'sudoku'
 class SudokuResult
 
   include Enumerable
-  
-  attr_accessor :depth
+
+  attr_reader :depth
 
   def initialize depth
     @results = []
+    @depth = depth
   end
 
   def each
@@ -33,6 +34,7 @@ class SudokuResult
 
   def merge other
     @results += other.results
+    @depth = [@depth, other.depth].max
   end
 
   protected

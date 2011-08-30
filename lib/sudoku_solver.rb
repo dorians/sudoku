@@ -5,6 +5,8 @@ class SudokuSolver
   
   def initialize sudoku
     @sudoku = sudoku.clone
+    @depth = 0
+
     initialize_capabilities
   end
 
@@ -13,6 +15,7 @@ class SudokuSolver
 
     solver.sudoku = @sudoku.clone
     solver.capabilities = Marshal.load(Marshal.dump(@capabilities))
+    @depth += 1
 
     solver
   end
