@@ -2,7 +2,7 @@ require 'sudoku'
 require 'sudoku_result'
 
 class SudokuSolver
-
+  
   def initialize sudoku
     @sudoku = sudoku.clone
     initialize_capabilities
@@ -18,35 +18,21 @@ class SudokuSolver
   end
 
   def solve
-    result = SudokuResult.new
+    result = SudokuResult.new @depth
 
-    begin
-      return (result << @sudoku) if try_solve_without_random
-    rescue
-      return result
+    while (solve_method1 || solve_method2) do
+      return result unless correct?
     end
 
-    unless @sudoku.solved?
-      sudoku_posabilities = [self]
-
-      until sudoku_posabilities.empty?
-        current_solver = sudoku_posabilities.pop
-
-        item = current_solver.sudoku.find {|i| not i.set? }
-
-        current_solver.capabilities[item.y][item.x].each do |capability|
-          solver = current_solver.clone
-          solver.set item.x, item.y, capability
-
-          begin
-            if solver.try_solve_without_random
-              result << solver.sudoku
-            else
-              sudoku_posabilities << solver if solver.correct?
-            end
-          rescue
-          end
-        end
+    if @sudoku.solved?
+      result << @sudoku
+    else
+      element = find_best_element_to_random_solve
+      
+      @capabilities[element.y][element.x].each do |random|
+        solver = self.clone
+        solver.set(element.x, element.y, random)
+        result.merge solver.solve
       end
     end
 
@@ -55,14 +41,7 @@ class SudokuSolver
 
   protected
 
-  attr_accessor :sudoku, :capabilities
-
-  def try_solve_without_random
-    while (solve_method1 || solve_method2) do
-      raise 'Sudoku can\'t be solved' unless correct?
-    end
-    @sudoku.solved?
-  end
+  attr_accessor :sudoku, :capabilities, :depth
 
   def set x, y, value
     # delegate a task
@@ -112,6 +91,28 @@ class SudokuSolver
       end
     end
     false
+  end
+
+  def find_best_element_to_random_solve
+    min_element = nil
+
+    @capabilities.each_with_index do |row, y|
+      row.each_with_index do |capabilities, x|
+        element = @sudoku.at(x, y)
+        current_count = capabilities.count
+        smallest_count = min_element && @capabilities[min_element.y][min_element.x].count
+
+        if current_count > 1
+          if current_count == 2
+            return element
+          elsif smallest_count.nil? || current_count < smallest_count
+            min_element = element
+          end          
+        end
+      end
+    end
+    
+    min_element
   end
 
   def initialize_capabilities
