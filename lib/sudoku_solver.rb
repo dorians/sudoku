@@ -2,7 +2,7 @@ require 'sudoku'
 require 'sudoku_result'
 
 class SudokuSolver
-  
+
   def initialize sudoku
     @sudoku = sudoku.clone
     @depth = 0
@@ -31,7 +31,7 @@ class SudokuSolver
       result << @sudoku
     else
       element = find_best_element_to_random_solve
-      
+
       @capabilities[element.y][element.x].each do |random|
         solver = self.clone
         solver.set(element.x, element.y, random)
@@ -114,7 +114,7 @@ class SudokuSolver
         end
       end
     end
-    
+
     min_element
   end
 

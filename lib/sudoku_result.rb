@@ -4,11 +4,12 @@ class SudokuResult
 
   include Enumerable
 
-  attr_reader :depth
+  attr_reader :depth, :forks
 
   def initialize depth
     @results = []
     @depth = depth
+    @forks = 1
   end
 
   def each &block
@@ -37,6 +38,7 @@ class SudokuResult
       self.<< sudoku
     end
     @depth = [@depth, other.depth].max
+    @forks += other.forks
   end
 
 end
