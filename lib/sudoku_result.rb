@@ -4,25 +4,21 @@ class SudokuResult
 
   include Enumerable
 
-  def initialize
+  attr_reader :depth, :forks
+
+  def initialize depth
     @results = []
+    @depth = depth
+    @forks = 1
   end
 
-  def each
-    @results.each
+  def each &block
+    @results.each &block
   end
 
   def << sudoku
     @results << sudoku
     self
-  end
-
-  def set_as_unsolved
-    
-  end
-
-  def get
-    @results.first unless @results.empty?
   end
 
   def correct?
@@ -34,7 +30,15 @@ class SudokuResult
   end
 
   def to_s
-    get.to_s
+    @results.empty? ? '' : @results.first.to_s
+  end
+
+  def merge other
+    other.each do |sudoku|
+      self.<< sudoku
+    end
+    @depth = [@depth, other.depth].max
+    @forks += other.forks
   end
 
 end
