@@ -97,5 +97,16 @@ class SudokuTest < Test::Unit::TestCase
     assert_nil @sudoku.set(0, 0, 6)
     assert_nil @sudoku.set(0, 1, 6)
   end
-	
+
+  def test_solve
+    (1..3).each do |i|
+      data = open($:.first + '/../test/inputs/00' + i.to_s).read
+      sudoku = Sudoku.new(data)
+    
+      solver = SudokuSolver.new sudoku
+      result = solver.solve
+      assert result.correct?
+    end
+  end
+
 end
