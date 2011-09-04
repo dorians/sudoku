@@ -1,3 +1,5 @@
+$LOAD_PATH.unshift File.dirname(__FILE__)
+
 require 'sudoku_solver'
 
 data = open('../test/inputs/001').read

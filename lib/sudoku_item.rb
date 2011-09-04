@@ -1,3 +1,5 @@
+$LOAD_PATH.unshift File.dirname(__FILE__)
+
 class SudokuItem
 
   def initialize sudoku, value
