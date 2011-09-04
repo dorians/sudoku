@@ -2,6 +2,7 @@ $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 
 require 'test/unit'
 require 'sudoku'
+require 'sudoku_solver'
 require 'pp'
 
 class SudokuTest < Test::Unit::TestCase
