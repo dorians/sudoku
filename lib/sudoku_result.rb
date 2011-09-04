@@ -9,7 +9,7 @@ class SudokuResult
   def initialize depth
     @results = []
     @depth = depth
-    @forks = 1
+    @forks = 0
   end
 
   def each &block
@@ -38,7 +38,7 @@ class SudokuResult
       self.<< sudoku
     end
     @depth = [@depth, other.depth].max
-    @forks += other.forks
+    @forks += other.forks.succ
   end
 
 end
