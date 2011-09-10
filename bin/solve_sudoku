@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+NAME = $0
+
+require 'sudoku_solver'
+
+begin
+  input = ARGV.first
+  data = open(input).read
+rescue
+  puts "#{NAME}: missing file operand"
+  #puts "Try `#{NAME} --help` for more information."
+else
+  begin
+    sudoku = Sudoku.new(data)
+    solver = SudokuSolver.new sudoku
+    result = solver.solve
+
+    if result.correct?
+      puts result
+    else
+      puts 'Oh no! Something went wrong'
+    end
+  rescue
+  end
+end
